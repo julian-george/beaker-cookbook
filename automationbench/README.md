@@ -65,8 +65,8 @@ were made. The 200-task `simple` domain
 
 `uv run python .beaker/upload_splits.py` uploads `automationbench-skills-quickstart`
 with **36 train and 18 test cases**: six train and three test cases per domain.
-It uses the exact reviewed lists in [`.beaker/quickstart/`](.beaker/quickstart/README.md),
-not the next eligible tasks. Upload rejects duplicate or excluded IDs, cases in
+It uses the exact reviewed lists in [`data/quickstart/`](src/automationbench_skills/data/quickstart/README.md),
+not the next eligible tasks. The shared `load_quickstart()` data loader rejects duplicate or excluded IDs, cases in
 the wrong frozen split, and incorrect domain quotas.
 
 The September 28 source review replaces **23 of the original 54 cases**
@@ -75,8 +75,8 @@ implicit rules without enough independent examples. Each implicit rule retained
 in the demo has at least two training tasks and one test task. Harness-only
 limitations remain valid code optimization targets.
 
-[The selection notes](.beaker/quickstart/README.md) explain the replacements and
-reporting-rule coverage. [`.beaker/excluded_cases.txt`](.beaker/excluded_cases.txt)
+[The selection notes](src/automationbench_skills/data/quickstart/README.md) explain the replacements and
+reporting-rule coverage. [The full-pool exclusion list](src/automationbench_skills/data/quickstart/excluded_cases.txt)
 records the 91 full-pool exclusions; the demo also applies stricter coverage
 requirements. The full split files, task prompts, assertions, scoring, and local
 `run --split` commands are unchanged. Existing hosted datasets change only when
@@ -85,7 +85,7 @@ or a measured accuracy result.
 
 ## Models
 
-`--model` defaults to `gpt-5.6-luna` with `--reasoning-effort max`. Routing
+`--model` defaults to `gpt-5.6-luna` with `--reasoning-effort xhigh`. Routing
 follows the benchmark (`vendored/model_setup.py`): `claude-*` goes to
 Anthropic, `gemini-*` to the Gemini interactions API, everything else to OpenAI
 chat-completions/responses. `--reasoning-effort` maps to each API's reasoning

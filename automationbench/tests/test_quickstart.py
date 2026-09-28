@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from automationbench_skills.data import PUBLIC_DOMAINS, load_split
+from automationbench_skills.data import PUBLIC_DOMAINS, load_quickstart, load_split, quickstart
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,16 +19,18 @@ SPEC.loader.exec_module(upload)
 
 
 def test_quickstart_matches_reviewed_selection_and_preserves_source() -> None:
-    excluded = set(upload._read_names(upload.EXCLUDED_CASES))
+    excluded = set(quickstart._read_names(quickstart.EXCLUDED_CASES))
     assert len(excluded) == 91
     original = {split: load_split(split) for split in ("train", "test")}
     assert excluded <= {sample.task_name for samples in original.values() for sample in samples}
     selected: dict[str, set[str]] = {}
     for split, per_domain, replaced in (("train", 6, 14), ("test", 3, 9)):
-        rows = upload._load_quickstart(split, per_domain)
+        samples = load_quickstart(split)
+        rows = upload._quickstart_rows(split)
+        assert [sample.task_name for sample in samples] == [row["id"] for row in rows]
         ids = [row["id"] for row in rows]
         selected[split] = set(ids)
-        assert ids == upload._read_names(upload.QUICKSTART_DIR / f"{split}.txt")
+        assert ids == quickstart._read_names(quickstart.QUICKSTART_DIR / f"{split}.txt")
         assert len(ids) == len(set(ids)) == 6 * per_domain
         assert not set(ids) & excluded
         by_name = {sample.task_name: sample for sample in original[split]}
@@ -45,13 +47,13 @@ def test_quickstart_matches_reviewed_selection_and_preserves_source() -> None:
             assert row["input"] == {"task_name": sample.task_name, "prompt": upload._user_prompt(sample)}
             assert row["expected"] == {"assertions": sample.info["assertions"]}
             assert row["metadata"] == {"domain": sample.domain, "source_split": split}
-        assert rows == upload._load_quickstart(split, per_domain)
+        assert rows == upload._quickstart_rows(split)
     assert selected["train"].isdisjoint(selected["test"])
 
 
 @pytest.mark.parametrize("problem", ["duplicate", "excluded", "wrong_split", "missing_quota"])
 def test_quickstart_rejects_invalid_selection(problem: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    names = upload._read_names(upload.QUICKSTART_DIR / "train.txt")
+    names = quickstart._read_names(quickstart.QUICKSTART_DIR / "train.txt")
     if problem == "duplicate":
         names[0] = names[1]
         message = "Duplicate train"
@@ -65,9 +67,9 @@ def test_quickstart_rejects_invalid_selection(problem: str, tmp_path: Path, monk
         names.pop()
         message = "exactly 6 cases per domain"
     (tmp_path / "train.txt").write_text("\n".join(names) + "\n")
-    monkeypatch.setattr(upload, "QUICKSTART_DIR", tmp_path)
+    monkeypatch.setattr(quickstart, "QUICKSTART_DIR", tmp_path)
     with pytest.raises(ValueError, match=message):
-        upload._load_quickstart("train", 6)
+        load_quickstart("train")
 
 
 @pytest.mark.parametrize(
@@ -87,5 +89,10 @@ def test_reviewed_reporting_rules_keep_training_and_test_support(
     train_support: set[str], test_support: set[str]
 ) -> None:
     # These supporting tasks were identified by source review, not by model scores.
-    assert train_support <= set(upload._read_names(upload.QUICKSTART_DIR / "train.txt"))
-    assert test_support <= set(upload._read_names(upload.QUICKSTART_DIR / "test.txt"))
+    assert train_support <= set(quickstart._read_names(quickstart.QUICKSTART_DIR / "train.txt"))
+    assert test_support <= set(quickstart._read_names(quickstart.QUICKSTART_DIR / "test.txt"))
+
+
+def test_quickstart_rejects_unknown_split() -> None:
+    with pytest.raises(ValueError, match="Unknown quickstart split"):
+        load_quickstart("simple")

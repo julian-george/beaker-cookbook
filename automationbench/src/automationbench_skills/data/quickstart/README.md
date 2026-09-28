@@ -2,7 +2,8 @@
 
 The committed [training list](train.txt) and [test list](test.txt) contain the
 reviewed 54-case demo: **36 train / 18 test**, with **6 train / 3 test per domain**.
-The uploader loads these exact IDs in order and uses the pinned benchmark's
+`automationbench_skills.data.load_quickstart()` loads these exact IDs in order
+and returns the pinned benchmark's
 original prompts and assertions. No task moves between the frozen full splits.
 
 ## Selection policy
@@ -15,7 +16,7 @@ and at least one test task. Explicit instructions and requested calculations
 need no cross-task support. Harness-only limitations remain code optimization
 targets and do not, by themselves, require exclusion.
 
-The [full-pool exclusion list](../excluded_cases.txt) is a guard against accidental
+The [full-pool exclusion list](excluded_cases.txt) is a guard against accidental
 reintroduction, not a recipe for automatically picking replacement tasks.
 Review any future membership change before editing these lists.
 
