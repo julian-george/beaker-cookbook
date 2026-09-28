@@ -7,31 +7,30 @@ and returns the pinned benchmark's original prompts and assertions. No task move
 
 ## Selection policy
 
-The September 28, 2026 review recommends excluding 91 of the 600 public cases:
-56 task/rubric mismatches, 24 grading defects, and 11 cases without enough
+The September 28, 2026 review recommends excluding 93 of the 600 public cases:
+58 task/rubric mismatches, 24 grading defects, and 11 cases without enough
 training examples for an implicit rule. The full-pool policy requires two
 independent, consistent training tasks. The demo requires two training tasks
 and at least one test task. Explicit instructions and requested calculations
 need no cross-task support. Harness-only limitations remain code optimization
 targets and do not, by themselves, require exclusion.
 
-The [exclusion list](excluded_cases.txt) prevents reintroducing these 91 cases.
-[Reasons and source links for all 91 exclusions](EXCLUSIONS.md) are recorded separately.
+The [exclusion list](excluded_cases.txt) prevents reintroducing these 93 cases.
+[Reasons and source links for all 93 exclusions](EXCLUSIONS.md) are recorded separately.
 Replacement tasks must be reviewed before changing the committed lists.
 
 ## Counts
 
 | Bucket | Full dataset (600) | Original demo train (36) | Original demo test (18) |
 |---|---:|---:|---:|
-| Task/rubric mismatches | 56 (9.3%) | 7 (19.4%) | 4 (22.2%) |
+| Task/rubric mismatches | 58 (9.7%) | 7 (19.4%) | 4 (22.2%) |
 | Grading defects | 24 (4%) | 0 (0%) | 2 (11.1%) |
 | Insufficient training support | 11 (1.8%) | 7 (19.4%) | 3 (16.7%) |
-| **Excluded / replaced** | **91 (15.2%)** | **14 (38.9%)** | **9 (50%)** |
+| **Excluded / replaced** | **93 (15.5%)** | **14 (38.9%)** | **9 (50%)** |
 
 Each case is counted in one bucket; percentages use the column's original size.
-The task/rubric bucket includes two demo-only instruction conflicts, and the
-training-support bucket includes four demo-only coverage exclusions. These six
-are outside the 91 full-pool exclusions.
+The task/rubric bucket includes both instruction-conflict cases. The four
+demo-only coverage exclusions are outside the 93 full-pool exclusions.
 
 The revised demo keeps 31 original tasks and replaces **23 of 54 (42.6%)**;
 it still contains **36 train / 18 test** cases.
@@ -67,7 +66,7 @@ reporting procedure, not shared classification thresholds across different tasks
 | Train | [`operations.asana_fire_drill`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/operations/tasks.py#L32) | The exact “Due: 2026-02-18” Slack phrase has only one training example and no matching test. |
 | Train | [`operations.calendar_airtable_maintenance`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/operations/tasks.py#L1479) | Only one matching training case. Supplied names make a passing route reasonable, but do not provide two independent training examples of the exact-copy convention. |
 | Train | [`operations.drive_notion_archive`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/operations/tasks.py#L1296) | Only one training case supports the unrequested raw-ID requirement. The folder/tool problem is a separate harness flag. |
-| Train | [`sales.format_ambiguity`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1334) | Conflicting instructions—unclear which applies: the [contact record](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1451) prohibits title changes, while the [HR email](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1382) announces an immediate promotion. [Criterion 0](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1526) requires the update. Demo-only exclusion; the HR email could reasonably resolve the earlier freeze. |
+| Train | [`sales.format_ambiguity`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1334) | Conflicting instructions—unclear which applies: the [contact record](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1451) prohibits title changes, while the [HR email](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1382) announces an immediate promotion. [Criterion 0](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L1526) requires the update. Exclude from the full pool: the task does not establish whether the HR request overrides the freeze. |
 | Train | [`sales.multi_hop_lookup`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L53) | Only one training case supports inherited escalation routing. Explicit parent-industry rules concern a different decision. |
 | Train | [`sales.recency_selection`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L788) | The supplied audit instruction does not establish these extra note requirements. This entry does not rely on the competing policy in the account description. |
 | Train | [`support.helpscout_jira_bugs`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/support/tasks.py#L706) | The required triaged tag is absent from the task and configuration. The recommendation is to supply the configured processed-tag value. Repeated tickets within this one case do not establish an independently supported convention. |
@@ -81,7 +80,7 @@ reporting procedure, not shared classification thresholds across different tasks
 | Test | [`operations.notion_gmail_checklist_update`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/operations/tasks.py#L3577) | The guard cannot distinguish publishing the draft from correctly explaining its exclusion. No baseline example is asserted here. |
 | Test | [`operations.trello_vendor_hold_email`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/operations/tasks.py#L2370) | Only one matching training case. Date-only or move-only updates do not teach the requirement to combine both fields. |
 | Test | [`sales.advance_opportunity_stage`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L6879) | The required tie-breaker is not stated and has no supporting training example. |
-| Test | [`sales.apply_project_label`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L5781) | Conflicting instructions—unclear which applies: the [PM says to follow the spreadsheet exactly](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L5999), but a [later VP email](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L5982) changes its exclusions. [Criteria 6](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L6051) and [9](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L6069) still require the spreadsheet rules. Demo-only exclusion. |
+| Test | [`sales.apply_project_label`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L5781) | Conflicting instructions—unclear which applies: the [PM says to follow the spreadsheet exactly](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L5999), but a [later VP email](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L5982) changes its exclusions. [Criteria 6](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L6051) and [9](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/sales/tasks.py#L6069) still require the spreadsheet rules. Exclude from the full pool: the task does not establish which instruction takes precedence. |
 | Test | [`support.freshdesk_faq_drafts`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/support/tasks.py#L5676) | The Always Draft override does not clearly require replacing the still-accurate Low confidence label with FAQ match. |
 | Test | [`support.helpscout_weekly_report`](https://github.com/zapier/AutomationBench/blob/4a8e1061254004d9dac807054eed33fad7d1ff14/automationbench/domains/support/tasks.py#L4539) | The exact “Total: N” summary format lacks the required training support in this demo. It remains eligible in the full pool. |
 

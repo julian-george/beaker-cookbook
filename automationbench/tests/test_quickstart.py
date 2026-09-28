@@ -22,7 +22,7 @@ SPEC.loader.exec_module(upload)
 def test_reviewed_selection_preserves_split_membership_and_quotas() -> None:
     excluded = set(read_case_names(quickstart.EXCLUDED_CASES))
     original = {split: load_split(split) for split in ("train", "test")}
-    assert len(excluded) == 91
+    assert len(excluded) == 93
     assert excluded <= {sample.task_name for samples in original.values() for sample in samples}
     selected: dict[str, set[str]] = {}
     for split, per_domain in (("train", 6), ("test", 3)):
