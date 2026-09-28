@@ -5,16 +5,12 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from automationbench_skills.data.tasks import PUBLIC_DOMAINS, Sample, load_split
+from automationbench_skills.data.tasks import PUBLIC_DOMAINS, Sample, load_split, read_case_names
 
 
-QUICKSTART_DIR = Path(__file__).parent / "quickstart"
+QUICKSTART_DIR = Path(__file__).parent / "quickstart_cases"
 EXCLUDED_CASES = QUICKSTART_DIR / "excluded_cases.txt"
 CASES_PER_DOMAIN = {"train": 6, "test": 3}
-
-
-def _read_names(path: Path) -> list[str]:
-    return [name for line in path.read_text(encoding="utf-8").splitlines() if (name := line.split("#", 1)[0].strip())]
 
 
 def load_quickstart(split: str) -> list[Sample]:
@@ -22,10 +18,10 @@ def load_quickstart(split: str) -> list[Sample]:
     if split not in CASES_PER_DOMAIN:
         raise ValueError(f"Unknown quickstart split: {split!r}")
     per_domain = CASES_PER_DOMAIN[split]
-    names = _read_names(QUICKSTART_DIR / f"{split}.txt")
+    names = read_case_names(QUICKSTART_DIR / f"{split}.txt")
     if len(names) != len(set(names)):
         raise ValueError(f"Duplicate {split} quickstart cases")
-    excluded = set(names) & set(_read_names(EXCLUDED_CASES))
+    excluded = set(names) & set(read_case_names(EXCLUDED_CASES))
     if excluded:
         raise ValueError(f"Excluded {split} quickstart cases: {sorted(excluded)}")
     by_name = {sample.task_name: sample for sample in load_split(split)}

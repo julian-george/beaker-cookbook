@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from automationbench_skills.data import PUBLIC_DOMAINS, load_quickstart, load_split, quickstart
+from automationbench_skills.data.tasks import read_case_names
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +20,7 @@ SPEC.loader.exec_module(upload)
 
 
 def test_reviewed_selection_preserves_split_membership_and_quotas() -> None:
-    excluded = set(quickstart._read_names(quickstart.EXCLUDED_CASES))
+    excluded = set(read_case_names(quickstart.EXCLUDED_CASES))
     original = {split: load_split(split) for split in ("train", "test")}
     assert len(excluded) == 91
     assert excluded <= {sample.task_name for samples in original.values() for sample in samples}
@@ -28,7 +29,7 @@ def test_reviewed_selection_preserves_split_membership_and_quotas() -> None:
         samples = load_quickstart(split)
         names = [sample.task_name for sample in samples]
         selected[split] = set(names)
-        assert names == quickstart._read_names(quickstart.QUICKSTART_DIR / f"{split}.txt")
+        assert names == read_case_names(quickstart.QUICKSTART_DIR / f"{split}.txt")
         assert len(names) == len(set(names)) == 6 * per_domain
         assert not set(names) & excluded
         assert set(names) <= {sample.task_name for sample in original[split]}
@@ -58,7 +59,7 @@ def test_upload_preserves_reviewed_samples() -> None:
 
 @pytest.mark.parametrize("problem", ["duplicate", "excluded", "wrong_split", "missing_quota"])
 def test_quickstart_rejects_invalid_selection(problem: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    names = quickstart._read_names(quickstart.QUICKSTART_DIR / "train.txt")
+    names = read_case_names(quickstart.QUICKSTART_DIR / "train.txt")
     if problem == "duplicate":
         names[0] = names[1]
         message = "Duplicate train"
@@ -94,8 +95,8 @@ def test_reviewed_reporting_rules_keep_training_and_test_support(
     train_support: set[str], test_support: set[str]
 ) -> None:
     # These supporting tasks were identified by source review, not by model scores.
-    assert train_support <= set(quickstart._read_names(quickstart.QUICKSTART_DIR / "train.txt"))
-    assert test_support <= set(quickstart._read_names(quickstart.QUICKSTART_DIR / "test.txt"))
+    assert train_support <= set(read_case_names(quickstart.QUICKSTART_DIR / "train.txt"))
+    assert test_support <= set(read_case_names(quickstart.QUICKSTART_DIR / "test.txt"))
 
 
 def test_quickstart_rejects_unknown_split() -> None:

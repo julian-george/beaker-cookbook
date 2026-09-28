@@ -16,6 +16,7 @@ need no cross-task support. Harness-only limitations remain code optimization
 targets and do not, by themselves, require exclusion.
 
 The [exclusion list](excluded_cases.txt) prevents reintroducing these 91 cases.
+[Reasons and source links for all 91 exclusions](EXCLUSIONS.md) are recorded separately.
 Replacement tasks must be reviewed before changing the committed lists.
 
 ## Counts

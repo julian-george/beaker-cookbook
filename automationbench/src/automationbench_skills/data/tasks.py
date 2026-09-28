@@ -73,16 +73,21 @@ def split_path(split: str) -> Path:
     return SPLITS_DIR / f"{split}.txt"
 
 
-def read_split_names(split: str) -> list[str]:
-    path = split_path(split)
-    if not path.is_file():
-        raise FileNotFoundError(f"Unknown split {split!r} (no {path})")
+def read_case_names(path: Path) -> list[str]:
+    """Read ordered case IDs, ignoring blank lines and comments."""
     names = []
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         line = line.split("#", 1)[0].strip()
         if line:
             names.append(line)
     return names
+
+
+def read_split_names(split: str) -> list[str]:
+    path = split_path(split)
+    if not path.is_file():
+        raise FileNotFoundError(f"Unknown split {split!r} (no {path})")
+    return read_case_names(path)
 
 
 def load_split(split: str) -> list[Sample]:

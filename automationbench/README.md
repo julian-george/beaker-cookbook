@@ -69,7 +69,7 @@ were made. The 200-task `simple` domain
 The loader rejects excluded or duplicate IDs, incorrect split membership, and
 incorrect domain counts.
 
-See [selection notes](src/automationbench_skills/data/quickstart/README.md) for
+See [selection notes](src/automationbench_skills/data/quickstart_cases/README.md) for
 case lists, exclusion reasons, and implicit-rule coverage. The full benchmark
 splits, scoring, and local `run --split` behavior are unchanged. Hosted datasets
 change only when the upload script is run.
