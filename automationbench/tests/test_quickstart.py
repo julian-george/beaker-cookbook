@@ -18,34 +18,74 @@ upload = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(upload)
 
 
-def test_quickstart_excludes_audited_cases_and_preserves_quotas() -> None:
-    excluded = {
-        line.strip()
-        for line in (ROOT / ".beaker/excluded_cases.txt").read_text().splitlines()
-        if line.strip() and not line.startswith("#")
-    }
-    assert len(excluded) == 114
+def test_quickstart_matches_reviewed_selection_and_preserves_source() -> None:
+    excluded = set(upload._read_names(upload.EXCLUDED_CASES))
+    assert len(excluded) == 91
     original = {split: load_split(split) for split in ("train", "test")}
     assert excluded <= {sample.task_name for samples in original.values() for sample in samples}
     selected: dict[str, set[str]] = {}
-    for split, per_domain in (("train", 6), ("test", 3)):
-        rows = upload._take_per_domain(split, per_domain)
+    for split, per_domain, replaced in (("train", 6, 14), ("test", 3, 9)):
+        rows = upload._load_quickstart(split, per_domain)
         ids = [row["id"] for row in rows]
         selected[split] = set(ids)
+        assert ids == upload._read_names(upload.QUICKSTART_DIR / f"{split}.txt")
         assert len(ids) == len(set(ids)) == 6 * per_domain
         assert not set(ids) & excluded
-        assert set(ids) <= {sample.task_name for sample in original[split]}
+        by_name = {sample.task_name: sample for sample in original[split]}
+        assert set(ids) <= by_name.keys()
         assert Counter(row["group_key"] for row in rows) == dict.fromkeys(PUBLIC_DOMAINS, per_domain)
-        for domain in PUBLIC_DOMAINS:
-            eligible = [s for s in original[split] if s.domain == domain and s.task_name not in excluded]
-            assert [row["id"] for row in rows if row["group_key"] == domain] == [
-                s.task_name for s in eligible[:per_domain]
-            ]
-        assert rows == upload._take_per_domain(split, per_domain)
+        initial = {
+            sample.task_name
+            for domain in PUBLIC_DOMAINS
+            for sample in [s for s in original[split] if s.domain == domain][:per_domain]
+        }
+        assert len(initial - set(ids)) == replaced
+        for row in rows:
+            sample = by_name[row["id"]]
+            assert row["input"] == {"task_name": sample.task_name, "prompt": upload._user_prompt(sample)}
+            assert row["expected"] == {"assertions": sample.info["assertions"]}
+            assert row["metadata"] == {"domain": sample.domain, "source_split": split}
+        assert rows == upload._load_quickstart(split, per_domain)
     assert selected["train"].isdisjoint(selected["test"])
 
 
-def test_quickstart_fails_if_a_domain_cannot_fill_its_quota(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(upload, "load_split", lambda split: [])
-    with pytest.raises(ValueError, match="Not enough eligible train cases"):
-        upload._take_per_domain("train", 6)
+@pytest.mark.parametrize("problem", ["duplicate", "excluded", "wrong_split", "missing_quota"])
+def test_quickstart_rejects_invalid_selection(problem: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    names = upload._read_names(upload.QUICKSTART_DIR / "train.txt")
+    if problem == "duplicate":
+        names[0] = names[1]
+        message = "Duplicate train"
+    elif problem == "excluded":
+        names[0] = "sales.recency_selection"
+        message = "Excluded train"
+    elif problem == "wrong_split":
+        names[0] = "sales.calendar_crm_meeting"
+        message = "absent from frozen train"
+    else:
+        names.pop()
+        message = "exactly 6 cases per domain"
+    (tmp_path / "train.txt").write_text("\n".join(names) + "\n")
+    monkeypatch.setattr(upload, "QUICKSTART_DIR", tmp_path)
+    with pytest.raises(ValueError, match=message):
+        upload._load_quickstart("train", 6)
+
+
+@pytest.mark.parametrize(
+    ("train_support", "test_support"),
+    [
+        (
+            {"sales.mark_vip_emails_read", "support.zendesk_freshdesk_sync"},
+            {"support.intercom_freshdesk_escalation", "hr.salary_band_audit"},
+        ),
+        (
+            {"support.helpcrunch_engagement_scoring", "support.zendesk_hubspot_churn_risk"},
+            {"support.helpscout_hubspot_deal_alerts"},
+        ),
+    ],
+)
+def test_reviewed_reporting_rules_keep_training_and_test_support(
+    train_support: set[str], test_support: set[str]
+) -> None:
+    # These supporting tasks were identified by source review, not by model scores.
+    assert train_support <= set(upload._read_names(upload.QUICKSTART_DIR / "train.txt"))
+    assert test_support <= set(upload._read_names(upload.QUICKSTART_DIR / "test.txt"))

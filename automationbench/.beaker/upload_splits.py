@@ -12,7 +12,7 @@ import json
 import shutil
 import subprocess
 import tempfile
-from collections import defaultdict
+from collections import Counter
 from pathlib import Path
 
 import yaml
@@ -25,6 +25,7 @@ TEST_PER_DOMAIN = 3
 DATASET_NAME = "automationbench-skills-quickstart"
 BEAKER_YAML = Path(__file__).resolve().parent / "beaker.yaml"
 EXCLUDED_CASES = Path(__file__).resolve().parent / "excluded_cases.txt"
+QUICKSTART_DIR = Path(__file__).resolve().parent / "quickstart"
 
 
 def configured_agent_key() -> str:
@@ -43,36 +44,43 @@ def _user_prompt(sample: Sample) -> str:
     ).strip()
 
 
-def _take_per_domain(split: str, per_domain: int) -> list[dict[str, object]]:
-    excluded = {
-        name
-        for line in EXCLUDED_CASES.read_text(encoding="utf-8").splitlines()
-        if (name := line.split("#", 1)[0].strip())
-    }
-    by_domain: dict[str, list[Sample]] = defaultdict(list)
-    for sample in load_split(split):
-        if sample.task_name not in excluded:
-            by_domain[sample.domain].append(sample)
+def _read_names(path: Path) -> list[str]:
+    return [name for line in path.read_text(encoding="utf-8").splitlines() if (name := line.split("#", 1)[0].strip())]
+
+
+def _load_quickstart(split: str, per_domain: int) -> list[dict[str, object]]:
+    """Load the reviewed selection; never substitute unreviewed cases."""
+    names = _read_names(QUICKSTART_DIR / f"{split}.txt")
+    if len(names) != len(set(names)):
+        raise ValueError(f"Duplicate {split} quickstart cases")
+    excluded = set(names) & set(_read_names(EXCLUDED_CASES))
+    if excluded:
+        raise ValueError(f"Excluded {split} quickstart cases: {sorted(excluded)}")
+    by_name = {sample.task_name: sample for sample in load_split(split)}
+    missing = set(names) - by_name.keys()
+    if missing:
+        raise ValueError(f"Quickstart cases absent from frozen {split} split: {sorted(missing)}")
+    samples = [by_name[name] for name in names]
+    counts = Counter(sample.domain for sample in samples)
+    if counts != dict.fromkeys(PUBLIC_DOMAINS, per_domain):
+        raise ValueError(f"Quickstart {split} needs exactly {per_domain} cases per domain: {dict(counts)}")
     rows: list[dict[str, object]] = []
-    for domain in PUBLIC_DOMAINS:
-        if len(by_domain[domain]) < per_domain:
-            raise ValueError(f"Not enough eligible {split} cases in {domain}: need {per_domain}")
-        for sample in by_domain[domain][:per_domain]:
-            rows.append(
-                {
-                    "id": sample.task_name,
-                    # The Integration loads the task by name; ``prompt`` is what the
-                    # agent was asked, so the case view shows the ask next to
-                    # the assertion checks.
-                    "input": {"task_name": sample.task_name, "prompt": _user_prompt(sample)},
-                    # The task's assertions are what "correct" means for this
-                    # case; ``score_case`` evaluates them against the end state
-                    # and emits one Check per assertion.
-                    "expected": {"assertions": sample.info["assertions"]},
-                    "metadata": {"domain": domain, "source_split": split},
-                    "group_key": domain,
-                }
-            )
+    for sample in samples:
+        rows.append(
+            {
+                "id": sample.task_name,
+                # The Integration loads the task by name; ``prompt`` is what the
+                # agent was asked, so the case view shows the ask next to
+                # the assertion checks.
+                "input": {"task_name": sample.task_name, "prompt": _user_prompt(sample)},
+                # The task's assertions are what "correct" means for this
+                # case; ``score_case`` evaluates them against the end state
+                # and emits one Check per assertion.
+                "expected": {"assertions": sample.info["assertions"]},
+                "metadata": {"domain": sample.domain, "source_split": split},
+                "group_key": sample.domain,
+            }
+        )
     return rows
 
 
@@ -81,8 +89,8 @@ def main() -> None:
     parser.add_argument("--agent", default=None, help="agent key; defaults to agent_key in .beaker/beaker.yaml")
     args = parser.parse_args()
     agent_key = args.agent or configured_agent_key()
-    train_rows = _take_per_domain("train", TRAIN_PER_DOMAIN)
-    test_rows = _take_per_domain("test", TEST_PER_DOMAIN)
+    train_rows = _load_quickstart("train", TRAIN_PER_DOMAIN)
+    test_rows = _load_quickstart("test", TEST_PER_DOMAIN)
     with tempfile.TemporaryDirectory(prefix="beaker-dataset-") as temp_dir:
         dataset_dir = Path(temp_dir)
         splits = {"train": train_rows, "test": test_rows}
