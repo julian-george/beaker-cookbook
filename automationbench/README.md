@@ -63,25 +63,16 @@ were made. The 200-task `simple` domain
 
 ### Reviewed quickstart dataset
 
-`uv run python .beaker/upload_splits.py` uploads `automationbench-skills-quickstart`
-with **36 train and 18 test cases**: six train and three test cases per domain.
-It uses the exact reviewed lists in [`data/quickstart/`](src/automationbench_skills/data/quickstart/README.md),
-not the next eligible tasks. The shared `load_quickstart()` data loader rejects duplicate or excluded IDs, cases in
-the wrong frozen split, and incorrect domain quotas.
+`uv run python .beaker/upload_splits.py` uploads the reviewed **54-case quickstart**:
+36 train / 18 test, with six train and three test cases per domain. It replaces
+23 original cases using fixed lists loaded by `automationbench_skills.data.load_quickstart()`.
+The loader rejects excluded or duplicate IDs, incorrect split membership, and
+incorrect domain counts.
 
-The September 28 source review replaces **23 of the original 54 cases**
-(14 train, 9 test). It excludes task/rubric mismatches, grading defects, and
-implicit rules without enough independent examples. Each implicit rule retained
-in the demo has at least two training tasks and one test task. Harness-only
-limitations remain valid code optimization targets.
-
-[The selection notes](src/automationbench_skills/data/quickstart/README.md) explain the replacements and
-reporting-rule coverage. [The full-pool exclusion list](src/automationbench_skills/data/quickstart/excluded_cases.txt)
-records the 91 full-pool exclusions; the demo also applies stricter coverage
-requirements. The full split files, task prompts, assertions, scoring, and local
-`run --split` commands are unchanged. Existing hosted datasets change only when
-the upload script is run. Source review is not a guarantee of defect-free grading
-or a measured accuracy result.
+See [selection notes](src/automationbench_skills/data/quickstart/README.md) for
+case lists, exclusion reasons, and implicit-rule coverage. The full benchmark
+splits, scoring, and local `run --split` behavior are unchanged. Hosted datasets
+change only when the upload script is run.
 
 ## Models
 
