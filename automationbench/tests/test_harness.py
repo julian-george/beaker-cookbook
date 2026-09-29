@@ -74,14 +74,13 @@ class TestSplits:
         from automationbench_skills.data.make_splits import make_splits
         from automationbench_skills.data.tasks import read_split_names
 
-        train, test, simple = make_splits()
+        train, test = make_splits()
         assert train == read_split_names("train")
         assert test == read_split_names("test")
-        assert simple == read_split_names("simple")
 
     def test_task_names_globally_unique(self) -> None:
-        samples = load_samples(include_simple=True)
-        assert len({s.task_name for s in samples}) == len(samples) == 800
+        samples = load_samples()
+        assert len({s.task_name for s in samples}) == len(samples) == 600
 
     def test_task_family(self) -> None:
         assert task_family("sales.docusign_contract_send") == "docusign"

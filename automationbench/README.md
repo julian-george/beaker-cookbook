@@ -60,8 +60,8 @@ The loader applies `splits/excluded_cases.txt`, yielding **381 train and 111 tes
 cases** in their original order after removing 108 cases with task/metadata
 issues or grading defects.
 See [exclusion reasons and source links](src/automationbench_skills/splits/EXCLUSIONS.md)
-for all decisions, domain counts, and split regeneration. The optional
-200-case `simple` split is unchanged and is never scored.
+for all decisions and domain counts. See the [split README](src/automationbench_skills/splits/README.md)
+for split generation and the held-out test policy.
 
 `uv run python .beaker/upload_splits.py` uses the first six train and three test
 cases per domain: **54 cases (36 train / 18 test)**. It replaces 23 of the

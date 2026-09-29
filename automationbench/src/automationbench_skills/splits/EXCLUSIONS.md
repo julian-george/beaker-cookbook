@@ -13,7 +13,7 @@ The original `train.txt` and `test.txt` remain unchanged at 450/150. `load_split
 
 The standard uploader selects the first six train and three test cases per domain: **36 train / 18 test**. It replaces **23 original demo cases (42.6%)**: **13 train and 10 test**. Eight are task/metadata exclusions and 15 are grading exclusions. The other 31 original cases remain. The Pipefy vendor-onboarding exclusion removes a previously selected replacement, so it does not increase the 23 original-demo exclusions. The unchanged selection order fills that training slot with `operations.confluence_gmail_policy_notice`. Larger uploads use the same eligible split files.
 
-`simple.txt` remains an optional 200-task, unscored training list. The task loader can still load the complete upstream benchmark; only the scored split lists are filtered. Upstream tasks, graders, model settings, and the optimization objective are unchanged.
+The task loader can still load all 600 public cases; only the train/test split lists are filtered. Upstream tasks, graders, model settings, and the optimization objective are unchanged.
 
 `make_splits` continues to reproduce the original, unfiltered split files. Exclusions are applied only when loading a scored split, so no filtered train/test files need to be maintained. Do not move held-out cases into training or use held-out traces to author agent skills.
 
