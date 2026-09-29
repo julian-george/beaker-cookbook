@@ -9,29 +9,27 @@ Each excluded case has one primary bucket. Keep cases that can be addressed by f
 
 ## Split selection
 
-The original `train.txt` and `test.txt` remain unchanged at 450/150. `load_split()` applies `excluded_cases.txt` when loading either scored split, preserving the order of every remaining case. No case moves between train and test. No cases are paired or reordered to teach a particular test requirement. The original split used seed 0 and task-family stratification within each domain.
+The source split files contain 450 train and 150 test cases, assigned using seed 0 and task-family stratification within each domain. `load_split()` applies `excluded_cases.txt` to both splits, preserving case order and split membership.
 
-The standard uploader selects the first six train and three test cases per domain: **36 train / 18 test**. It replaces **23 original demo cases (42.6%)**: **13 train and 10 test**. Eight are task/metadata exclusions and 15 are grading exclusions. The other 31 original cases remain. The Pipefy vendor-onboarding exclusion removes a previously selected replacement, so it does not increase the 23 original-demo exclusions. The unchanged selection order fills that training slot with `operations.confluence_gmail_policy_notice`. Larger uploads use the same eligible split files.
+The standard uploader selects the first six eligible train and three test cases per domain: **36 train / 18 test**. Larger uploads use the same filtered splits.
 
-The task loader can still load all 600 public cases; only the train/test split lists are filtered. Upstream tasks, graders, model settings, and the optimization objective are unchanged.
-
-`make_splits` continues to reproduce the original, unfiltered split files. Exclusions are applied only when loading a scored split, so no filtered train/test files need to be maintained. Do not move held-out cases into training or use held-out traces to author agent skills.
+`make_splits` generates the unfiltered source split files; exclusions are applied at load time. See the [split README](README.md) for generation instructions and the held-out evaluation policy.
 
 ## Counts by domain
 
-| Domain | Full pool before | Full pool after | Train after | Test after | Demo before → after |
+| Domain | Source cases | Eligible cases | Eligible train | Eligible test | Demo cases |
 | --- | --- | --- | --- | --- | --- |
-| Finance | 100 | 93 | 69 | 24 | 9 → 9 |
-| HR | 100 | 87 | 67 | 20 | 9 → 9 |
-| Marketing | 100 | 87 | 68 | 19 | 9 → 9 |
-| Operations | 100 | 78 | 62 | 16 | 9 → 9 |
-| Sales | 100 | 85 | 65 | 20 | 9 → 9 |
-| Support | 100 | 62 | 50 | 12 | 9 → 9 |
-| Total | 600 | 492 | 381 | 111 | 54 → 54 |
+| Finance | 100 | 93 | 69 | 24 | 9 |
+| HR | 100 | 87 | 67 | 20 | 9 |
+| Marketing | 100 | 87 | 68 | 19 | 9 |
+| Operations | 100 | 78 | 62 | 16 | 9 |
+| Sales | 100 | 85 | 65 | 20 | 9 |
+| Support | 100 | 62 | 50 | 12 | 9 |
+| Total | 600 | 492 | 381 | 111 | 54 |
 
 ## Exclusion reasons and source links
 
-All links refer to benchmark commit `4a8e1061254004d9dac807054eed33fad7d1ff14`. Criterion numbers are zero-based. Each row states the defect and the repair needed before using that case for optimization. The demo column identifies exclusions from the original 54-case selection.
+All links refer to benchmark commit `4a8e1061254004d9dac807054eed33fad7d1ff14`. Criterion numbers are zero-based. Each row states the defect and the correction needed before including the case. The demo column identifies exclusions from the original 54-case selection.
 
 ### Task/metadata issues — 43 cases
 
