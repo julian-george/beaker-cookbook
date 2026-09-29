@@ -55,24 +55,18 @@ the tasks' `zapier_tools`.
 
 ## Splits
 
-`splits/train.txt` (450 tasks) and `splits/test.txt` (150 tasks) are a fixed
-75/25 split per domain, stratified by task family. See
-[`splits/README.md`](src/automationbench_skills/splits/README.md) for how they
-were made. The 200-task `simple` domain
-(`splits/simple.txt`) is train-only and never scored.
+The original `splits/train.txt` and `splits/test.txt` remain unchanged at 450/150.
+The loader applies `splits/excluded_cases.txt`, yielding **381 train and 111 test
+cases** in their original order after removing 108 cases with task/metadata
+issues or grading defects.
+See [exclusion reasons and source links](src/automationbench_skills/splits/EXCLUSIONS.md)
+for all decisions, domain counts, and split regeneration. The optional
+200-case `simple` split is unchanged and is never scored.
 
-### Reviewed quickstart dataset
-
-`uv run python .beaker/upload_splits.py` uploads the reviewed **54-case quickstart**:
-36 train / 18 test, with six train and three test cases per domain. It replaces
-23 original cases using fixed lists loaded by `automationbench_skills.data.load_quickstart()`.
-The loader rejects excluded or duplicate IDs, incorrect split membership, and
-incorrect domain counts.
-
-See [selection notes](src/automationbench_skills/data/quickstart_cases/README.md) for
-case lists, exclusion reasons, and implicit-rule coverage. The full benchmark
-splits, scoring, and local `run --split` behavior are unchanged. Hosted datasets
-change only when the upload script is run.
+`uv run python .beaker/upload_splits.py` uses the first six train and three test
+cases per domain: **54 cases (36 train / 18 test)**. It replaces 23 of the
+original demo cases; selection uses the same filtered lists as local runs.
+Hosted datasets change only when uploaded.
 
 ## Models
 
@@ -102,7 +96,7 @@ Upstream reports strict pass rates (`task_completed_correctly`) of roughly
 number, which adds guardrail and hidden-task components and uses a different
 harness.
 
-With this harness on the 150-task test split (`--max-concurrent 16`, one seed;
+Historical result on the original, unfiltered 150-task test split (`--max-concurrent 16`, one seed;
 skills arm uses `--skills-dir skills`, the seed skills):
 
 | model | arm | pass_rate | partial_credit |

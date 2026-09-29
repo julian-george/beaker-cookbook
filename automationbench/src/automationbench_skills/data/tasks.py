@@ -73,27 +73,24 @@ def split_path(split: str) -> Path:
     return SPLITS_DIR / f"{split}.txt"
 
 
-def read_case_names(path: Path) -> list[str]:
-    """Read ordered case IDs, ignoring blank lines and comments."""
+def read_split_names(split: str) -> list[str]:
+    path = split_path(split)
+    if not path.is_file():
+        raise FileNotFoundError(f"Unknown split {split!r} (no {path})")
     names = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in path.read_text().splitlines():
         line = line.split("#", 1)[0].strip()
         if line:
             names.append(line)
     return names
 
 
-def read_split_names(split: str) -> list[str]:
-    path = split_path(split)
-    if not path.is_file():
-        raise FileNotFoundError(f"Unknown split {split!r} (no {path})")
-    return read_case_names(path)
-
-
 def load_split(split: str) -> list[Sample]:
-    """Load the frozen ``train``/``test`` split (or the optional unscored
-    ``simple`` extra-training list) as Samples, in split-file order."""
+    """Load eligible train/test cases in frozen split order, or unscored simple cases."""
     names = read_split_names(split)
+    if split in {"train", "test"}:
+        excluded = set(read_split_names("excluded_cases"))
+        names = [name for name in names if name not in excluded]
     by_name = {s.task_name: s for s in load_samples(include_simple=split == "simple")}
     missing = [n for n in names if n not in by_name]
     if missing:

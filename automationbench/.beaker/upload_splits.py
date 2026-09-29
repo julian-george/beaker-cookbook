@@ -12,13 +12,16 @@ import json
 import shutil
 import subprocess
 import tempfile
+from collections import defaultdict
 from pathlib import Path
 
 import yaml
 
-from automationbench_skills.data import Sample, load_quickstart
+from automationbench_skills.data.tasks import PUBLIC_DOMAINS, Sample, load_split
 
 
+TRAIN_PER_DOMAIN = 6
+TEST_PER_DOMAIN = 3
 DATASET_NAME = "automationbench-skills-quickstart"
 BEAKER_YAML = Path(__file__).resolve().parent / "beaker.yaml"
 
@@ -39,24 +42,28 @@ def _user_prompt(sample: Sample) -> str:
     ).strip()
 
 
-def _quickstart_rows(split: str) -> list[dict[str, object]]:
+def _take_per_domain(split: str, per_domain: int) -> list[dict[str, object]]:
+    by_domain: dict[str, list[Sample]] = defaultdict(list)
+    for sample in load_split(split):
+        by_domain[sample.domain].append(sample)
     rows: list[dict[str, object]] = []
-    for sample in load_quickstart(split):
-        rows.append(
-            {
-                "id": sample.task_name,
-                # The Integration loads the task by name; ``prompt`` is what the
-                # agent was asked, so the case view shows the ask next to
-                # the assertion checks.
-                "input": {"task_name": sample.task_name, "prompt": _user_prompt(sample)},
-                # The task's assertions are what "correct" means for this
-                # case; ``score_case`` evaluates them against the end state
-                # and emits one Check per assertion.
-                "expected": {"assertions": sample.info["assertions"]},
-                "metadata": {"domain": sample.domain, "source_split": split},
-                "group_key": sample.domain,
-            }
-        )
+    for domain in PUBLIC_DOMAINS:
+        for sample in by_domain[domain][:per_domain]:
+            rows.append(
+                {
+                    "id": sample.task_name,
+                    # The Integration loads the task by name; ``prompt`` is what the
+                    # agent was asked, so the case view shows the ask next to
+                    # the assertion checks.
+                    "input": {"task_name": sample.task_name, "prompt": _user_prompt(sample)},
+                    # The task's assertions are what "correct" means for this
+                    # case; ``score_case`` evaluates them against the end state
+                    # and emits one Check per assertion.
+                    "expected": {"assertions": sample.info["assertions"]},
+                    "metadata": {"domain": domain, "source_split": split},
+                    "group_key": domain,
+                }
+            )
     return rows
 
 
@@ -65,8 +72,8 @@ def main() -> None:
     parser.add_argument("--agent", default=None, help="agent key; defaults to agent_key in .beaker/beaker.yaml")
     args = parser.parse_args()
     agent_key = args.agent or configured_agent_key()
-    train_rows = _quickstart_rows("train")
-    test_rows = _quickstart_rows("test")
+    train_rows = _take_per_domain("train", TRAIN_PER_DOMAIN)
+    test_rows = _take_per_domain("test", TEST_PER_DOMAIN)
     with tempfile.TemporaryDirectory(prefix="beaker-dataset-") as temp_dir:
         dataset_dir = Path(temp_dir)
         splits = {"train": train_rows, "test": test_rows}

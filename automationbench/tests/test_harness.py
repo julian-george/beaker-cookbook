@@ -46,13 +46,29 @@ async def _rollout(
 
 
 class TestSplits:
-    def test_frozen_split_shape(self) -> None:
+    def test_filtered_split_shape(self) -> None:
         train, test = load_split("train"), load_split("test")
-        assert len(train) == 450 and len(test) == 150
+        assert len(train) == 381 and len(test) == 111
         assert not {s.task_name for s in train} & {s.task_name for s in test}
+        from automationbench_skills.data.tasks import read_split_names
+
+        excluded = read_split_names("excluded_cases")
+        retained = {s.task_name for s in train + test}
+        assert len(excluded) == len(set(excluded)) == 108
+        assert not retained & set(excluded)
+        assert retained | set(excluded) == {s.task_name for s in load_samples()}
+        for split, samples in (("train", train), ("test", test)):
+            assert [s.task_name for s in samples] == [name for name in read_split_names(split) if name not in excluded]
+        expected = {
+            "sales": (65, 20),
+            "marketing": (68, 19),
+            "operations": (62, 16),
+            "support": (50, 12),
+            "finance": (69, 24),
+            "hr": (67, 20),
+        }
         for domain in PUBLIC_DOMAINS:
-            assert sum(1 for s in test if s.domain == domain) == 25
-            assert sum(1 for s in train if s.domain == domain) == 75
+            assert (sum(s.domain == domain for s in train), sum(s.domain == domain for s in test)) == expected[domain]
 
     def test_split_regeneration_is_deterministic(self) -> None:
         from automationbench_skills.data.make_splits import make_splits
