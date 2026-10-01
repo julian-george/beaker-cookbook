@@ -56,8 +56,8 @@ the tasks' `zapier_tools`.
 ## Splits
 
 We reviewed AutomationBench's task instructions, metadata, and grader code and
-identified **108 cases with data-integrity defects**. The loader excludes these
-cases before use, yielding **381 train and 111 test cases**, with case order and
+identified **113 cases with data-integrity defects**. The loader excludes these
+cases before use, yielding **381 train and 106 test cases**, with case order and
 split membership preserved. Exclusions address defective tasks or grading, not
 case difficulty or agent performance.
 
