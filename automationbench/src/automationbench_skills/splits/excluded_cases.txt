@@ -1,4 +1,5 @@
 # Excluded from both scored splits. Reasons and source links: EXCLUSIONS.md
+finance.expense_anomaly_detection
 finance.expense_policy_violation
 finance.payment_fraud_detection
 finance.po_three_way_match
@@ -6,6 +7,7 @@ finance.prepaid_amortization
 finance.slack_receipt_capture
 finance.wave_freelance_invoice
 finance.wire_transfer_approval
+finance.xero_bill_entry
 hr.airtable_learning_path_assignment
 hr.calendly_exit_interviews
 hr.calendly_manager_office_hours
@@ -42,6 +44,7 @@ operations.calendly_equipment_inspection
 operations.canva_asset_management
 operations.docusign_contractor_offboard
 operations.docusign_lease_renewal
+operations.drive_notion_archive
 operations.drive_notion_lease_archive
 operations.mailchimp_ecommerce_sync
 operations.monday_calendar_emergency_drill
