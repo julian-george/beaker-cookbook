@@ -1,7 +1,7 @@
 # Frozen splits
 
 The AutomationBench train and test splits are filtered for data integrity before use. We reviewed the task instructions, metadata, and grader code and found
-113 cases with missing or conflicting task information, or grading checks that
+116 cases with missing or conflicting task information, or grading checks that
 do not reliably measure the requested work. These exclusions are based on the
 task data and grader code, not on an agent's score or how difficult a case is.
 
@@ -10,19 +10,19 @@ split is used or sampled for an upload:
 
 | Split | Cases in file | Excluded | Cases loaded |
 | --- | ---: | ---: | ---: |
-| `train.txt` | 450 | 69 | 381 |
-| `test.txt` | 150 | 44 | 106 |
-| **Scored total** | **600** | **113** | **487** |
+| `train.txt` | 450 | 70 | 380 |
+| `test.txt` | 150 | 46 | 104 |
+| **Scored total** | **600** | **116** | **484** |
 
-Exclusions cover **47 task/metadata issues** and **66 grading defects**.
+Exclusions cover **48 task/metadata issues** and **68 grading defects**.
 See [EXCLUSIONS.md](EXCLUSIONS.md) for each case's reason and source evidence.
 The split files record all 600 source cases and their train/test assignments.
 The loader selects eligible cases in file order without moving them between splits.
 
-- `train.txt` — 450 tasks (75 per scored domain); 381 loaded after exclusions.
+- `train.txt` — 450 tasks (75 per scored domain); 380 loaded after exclusions.
   Available for training and development, including learning from trajectories
   and grading checks.
-- `test.txt` — 150 tasks (25 per scored domain); 106 loaded after exclusions.
+- `test.txt` — 150 tasks (25 per scored domain); 104 loaded after exclusions.
   Held out for final evaluation only. No validation split: model selection
   happens on train.
 
