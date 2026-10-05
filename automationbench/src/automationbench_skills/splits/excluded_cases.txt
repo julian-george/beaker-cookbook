@@ -21,6 +21,7 @@ hr.notion_meeting_notes
 hr.probation_review_reminder
 hr.referral_bonus_tracking
 hr.salary_band_audit
+hr.training_compliance
 marketing.ad_performance_review
 marketing.app_review_triage
 marketing.budget_reallocation
@@ -46,6 +47,8 @@ operations.docusign_contractor_offboard
 operations.docusign_lease_renewal
 operations.drive_notion_archive
 operations.drive_notion_lease_archive
+operations.drive_slack_dock_schedule
+operations.jira_confluence_incident
 operations.mailchimp_ecommerce_sync
 operations.monday_calendar_emergency_drill
 operations.notion_gmail_checklist_update
@@ -72,6 +75,7 @@ sales.docusign_completion_processor
 sales.format_ambiguity
 sales.full_sales_cycle_orchestrator
 sales.multi_hop_lookup
+sales.priority_selection
 sales.recency_selection
 sales.sheets_multi_channel_campaign_router
 sales.vendor_review_prep
@@ -91,6 +95,7 @@ support.gorgias_inventory_routing
 support.helpcrunch_engagement_scoring
 support.helpcrunch_satisfaction
 support.helpscout_customer_effort
+support.helpscout_daily_digest
 support.helpscout_hubspot_deal_alerts
 support.helpscout_jira_bugs
 support.helpscout_kb_feedback
@@ -103,6 +108,7 @@ support.intercom_demo_scheduling
 support.intercom_feature_request
 support.intercom_freshdesk_escalation
 support.intercom_usage_health_scoring
+support.intercom_winback
 support.intercom_zoho_customer_360
 support.reamaze_intercom_migration
 support.reamaze_knowledge_routing
