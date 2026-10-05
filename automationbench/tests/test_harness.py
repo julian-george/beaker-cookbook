@@ -48,24 +48,24 @@ async def _rollout(
 class TestSplits:
     def test_filtered_split_shape(self) -> None:
         train, test = load_split("train"), load_split("test")
-        assert len(train) == 380 and len(test) == 104
+        assert len(train) == 374 and len(test) == 104
         assert not {s.task_name for s in train} & {s.task_name for s in test}
         from automationbench_skills.data.tasks import read_split_names
 
         excluded = read_split_names("excluded_cases")
         retained = {s.task_name for s in train + test}
-        assert len(excluded) == len(set(excluded)) == 116
+        assert len(excluded) == len(set(excluded)) == 122
         assert not retained & set(excluded)
         assert retained | set(excluded) == {s.task_name for s in load_samples()}
         for split, samples in (("train", train), ("test", test)):
             assert [s.task_name for s in samples] == [name for name in read_split_names(split) if name not in excluded]
         expected = {
-            "sales": (65, 20),
+            "sales": (64, 20),
             "marketing": (68, 19),
-            "operations": (61, 11),
-            "support": (50, 12),
+            "operations": (59, 11),
+            "support": (48, 12),
             "finance": (69, 22),
-            "hr": (67, 20),
+            "hr": (66, 20),
         }
         for domain in PUBLIC_DOMAINS:
             assert (sum(s.domain == domain for s in train), sum(s.domain == domain for s in test)) == expected[domain]
